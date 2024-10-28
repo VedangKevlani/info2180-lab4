@@ -1,21 +1,31 @@
-addEventListener('click', function() {
-    superheroes = document.getElementById('supersearch');
+document.getElementById('supersearch').addEventListener('click', function() {
+    const searchInput = document.getElementById('searchInput').value.trim();
+    const outputDiv = document.getElementById('output');
+    
+    // Clear previous results
+    outputDiv.innerHTML = '';
 
+    // Set up XMLHttpRequest
     const httpRequest = new XMLHttpRequest();
-    let url = "http://localhost/info2180-lab4/superheroes.php";
-    httpRequest.onreadystatechange = alertHeroes;
-    httpRequest.open('GET', url);
-    httpRequest.send();
+    let url = 'http://localhost/info2180-lab4/superheroes.php';
+    
+    // If search input is not empty, add it as a query parameter
+    if (searchInput !== '') {
+        url += `?query=${encodeURIComponent(searchInput)}`;
+    }
 
-    function alertHeroes() {
-        if(httpRequest.readyState === XMLHttpRequest.DONE) {
-            if(httpRequest.status === 200) {
-                let response = document.getElementById('result');
-                response = httpRequest.responseText;
-                alert(response);
+    httpRequest.onreadystatechange = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status === 200) {
+                // Display response text in the output div
+                outputDiv.innerHTML = httpRequest.responseText;
+                console.log(outputDiv.innerHTML);
             } else {
-                alert('Sorry! There was a problem with the request.');
+                outputDiv.innerHTML = 'Sorry! There was a problem with the request.';
             }
         }
-    }
+    };
+
+    httpRequest.open('GET', url, true);
+    httpRequest.send();
 });
