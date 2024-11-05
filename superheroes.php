@@ -1,4 +1,6 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
 
 $superheroes = [
   [
@@ -63,10 +65,47 @@ $superheroes = [
   ], 
 ];
 
-?>
+$query = isset($_GET['query']) ? htmlspecialchars($_GET['query']) : '';
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+$response = [];
+
+if ($query) {
+    $found = false;
+
+    foreach ($superheroes as $hero) {
+        if (strcasecmp($hero["alias"], $query) === 0 || strcasecmp($hero["name"], $query) === 0) {
+            // Superhero found, set response details
+            $response = [
+                "alias" => $hero["alias"],
+                "name" => $hero["name"],
+                "biography" => $hero["biography"]
+            ];
+            $found = true;
+            break;
+        }
+    }
+
+    // If superhero not found, set an error message
+    if (!$found) {
+        $alias = [];
+        foreach ($superheroes as $hero) {
+            $alias[] = [
+                "alias" => $hero["alias"]
+            ];
+        }
+        $response = ["error" => "$alias"];
+    }
+} else {
+    // No query provided, set an error message
+    $alias = [];
+        foreach ($superheroes as $hero) {
+            $alias[] = [
+                "alias" => $hero["alias"]
+            ];
+        }
+        $response = ["error" => $alias];
+}
+
+// Send JSON response
+echo json_encode($response);
+?>
